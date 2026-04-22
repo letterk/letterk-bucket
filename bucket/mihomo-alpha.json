@@ -1,20 +1,20 @@
 {
-    "version": "20260422072519",
+    "version": "20260422132156",
     "description": "A simple Python Pydantic model for Honkai: Star Rail parsed data from the Mihomo API.",
     "homepage": "https://github.com/MetaCubeX/mihomo",
     "license": "GPL-3.0-or-later",
     "architecture": {
         "64bit": {
-            "url": "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-windows-amd64-alpha-5a5e312.zip",
-            "hash": "d61bfbfd781a6fdc3b6141527dd4990d83af448342e7610b78afe11a970b66f8"
+            "url": "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-windows-amd64-alpha-1fea551.zip",
+            "hash": "a87e22d4f031293533fe3a60fc4119bd9e6e3af9b5e2434368d1815c6bd54937"
         },
         "32bit": {
-            "url": "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-windows-386-alpha-5a5e312.zip",
-            "hash": "ef0a1d89d8c7c9a8ea3d94138a76d7812ce8c0f3af36b48d02d3b53ec5ac75aa"
+            "url": "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-windows-386-alpha-1fea551.zip",
+            "hash": "aede8fc892b222bf2f501b1a5c1644372ef71feea38a774c1e304abfae34cb77"
         },
         "arm64": {
-            "url": "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-windows-arm64-alpha-5a5e312.zip",
-            "hash": "8d37f5a0f40d9548da4ac33d3ecd2294a3bf6cd62048d1167fbf7d66a5985027"
+            "url": "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-windows-arm64-alpha-1fea551.zip",
+            "hash": "a70b1d192de1b97a971b5d585125aaf89fc3656465292dc09780f30be08ab382"
         }
     },
     "pre_install": "Get-ChildItem \"$dir\\mihomo*.exe\" | Rename-Item -NewName 'mihomo.exe'",
