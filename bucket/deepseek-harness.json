@@ -5,7 +5,7 @@
     "license": "MIT",
     "notes": [
         "Built-in auto-update is disabled; updates are handled by Scoop.",
-        "App data is persisted in the Scoop persist directory via a junction from '%APPDATA%\\@deepseek-ai\\dsh-desktop'."
+        "App data is persisted in the Scoop persist directory via junctions from '%APPDATA%\\@deepseek-ai\\dsh-desktop' and from '%USERPROFILE%\\.dsh' (the harness home holding credentials, sessions, profiles and runtimes)."
     ],
     "architecture": {
         "64bit": {
@@ -21,18 +21,27 @@
     "installer": {
         "script": [
             "ensure \"$persist_dir\" | Out-Null",
-            "$appDataPath = \"$env:APPDATA\\@deepseek-ai\\dsh-desktop\"",
-            "if (Test-Path $appDataPath) {",
-            "    $link = Get-Item $appDataPath -Force",
-            "    if ($link.LinkType -eq 'Junction') {",
-            "        $link.Delete()",
-            "    } else {",
-            "        Get-ChildItem $appDataPath -Force | Move-Item -Destination $persist_dir -Force",
-            "        $link.Delete()",
+            "# Electron's userData directory and the harness home ($DSH_HOME, default ~/.dsh) both live in the persist directory.",
+            "$links = @(",
+            "    @{ Path = \"$env:APPDATA\\@deepseek-ai\\dsh-desktop\"; Target = \"$persist_dir\" }",
+            "    @{ Path = \"$env:USERPROFILE\\.dsh\"; Target = \"$persist_dir\\home\" }",
+            ")",
+            "foreach ($link in $links) {",
+            "    ensure $link.Target | Out-Null",
+            "    if (Test-Path $link.Path) {",
+            "        $item = Get-Item $link.Path -Force",
+            "        if ($item.LinkType -eq 'Junction') {",
+            "            # Already persisted: drop the link so it can be repointed.",
+            "            $item.Delete()",
+            "        } else {",
+            "            # First run: move the real directory into the persist directory, keeping whatever is already persisted.",
+            "            robocopy $link.Path $link.Target /E /MOVE /NFL /NDL /NJH /NJS /NP | Out-Null",
+            "            if ($LASTEXITCODE -ge 8) { throw \"robocopy failed with exit code $LASTEXITCODE while moving $($link.Path).\" }",
+            "        }",
             "    }",
-            "}",
-            "New-Item (Split-Path $appDataPath) -ItemType Directory -Force | Out-Null",
-            "New-Item $appDataPath -ItemType Junction -Target $persist_dir | Out-Null"
+            "    New-Item (Split-Path $link.Path) -ItemType Directory -Force | Out-Null",
+            "    New-Item $link.Path -ItemType Junction -Target $link.Target | Out-Null",
+            "}"
         ]
     },
     "post_install": [
@@ -46,9 +55,11 @@
     "pre_uninstall": "Get-Process 'DeepSeek Harness' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue",
     "uninstaller": {
         "script": [
-            "$appDataPath = \"$env:APPDATA\\@deepseek-ai\\dsh-desktop\"",
-            "$link = Get-Item $appDataPath -Force -ErrorAction SilentlyContinue",
-            "if ($link -and $link.LinkType -eq 'Junction') { $link.Delete() }"
+            "$links = @(\"$env:APPDATA\\@deepseek-ai\\dsh-desktop\", \"$env:USERPROFILE\\.dsh\")",
+            "foreach ($path in $links) {",
+            "    $link = Get-Item $path -Force -ErrorAction SilentlyContinue",
+            "    if ($link -and $link.LinkType -eq 'Junction') { $link.Delete() }",
+            "}"
         ]
     },
     "bin": "resources\\runtime\\cli\\bin\\dsh.cmd",
