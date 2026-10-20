@@ -6,11 +6,6 @@
         "identifier": "GPL-2.0-or-later",
         "url": "https://github.com/hooke007/mpv_PlayKit/blob/main/LICENSE.MD"
     },
-    "notes": [
-        "仅支持 Windows 10 及以上 64 位系统。首次使用前请阅读《新整合包的快速说明》：https://github.com/hooke007/mpv_PlayKit/discussions/194",
-        "配置目录为 $dir\\portable_config，本清单不持久化该目录：升级会整体替换（含 saved-props.json 与 _cache），如需保留个人改动请在升级前备份。",
-        "文件关联需手动注册为当前用户：运行 $dir\\installer\\mpv-register.bat，取消注册用 mpv-unregister.bat。注册绑定 mpv.exe 的绝对路径，升级后需重新运行。"
-    ],
     "architecture": {
         "64bit": {
             "url": "https://github.com/hooke007/mpv_PlayKit/releases/download/20260510/mpv-lazy-20260510.exe#/dl.7z",
@@ -18,6 +13,9 @@
         }
     },
     "extract_dir": "mpv-lazy",
+    "post_install": [
+        "if (Test-Path \"$dir\\mpv.com\") { & \"$dir\\mpv.com\" --config=no --register }"
+    ],
     "bin": [
         [
             "mpv.com",
@@ -29,6 +27,9 @@
             "mpv.exe",
             "mpv"
         ]
+    ],
+    "pre_uninstall": [
+        "if (Test-Path \"$dir\\mpv.com\") { & \"$dir\\mpv.com\" --config=no --unregister }"
     ],
     "checkver": "github",
     "autoupdate": {
